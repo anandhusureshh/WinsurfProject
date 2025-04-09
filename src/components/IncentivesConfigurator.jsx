@@ -64,14 +64,14 @@ const ProgramsContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-const AddProgramButton = styled(Button)(({ theme }) => ({
-  height: '40px',
+const AddProgramLink = styled(Button)(({ theme }) => ({
   color: '#4065C5',
   textTransform: 'none',
-  borderColor: '#4065C5',
+  padding: '8px',
+  minWidth: 'unset',
   '&:hover': {
-    borderColor: '#4065C5',
-    backgroundColor: 'rgba(64, 101, 197, 0.04)',
+    backgroundColor: 'transparent',
+    textDecoration: 'underline',
   },
 }));
 
@@ -182,14 +182,14 @@ const IncentivesConfigurator = () => {
             />
           ))}
         </ProgramsContainer>
-        <Box display="flex" justifyContent="center" mt={3}>
-          <AddProgramButton
-            variant="outlined"
-            startIcon={<AddIcon />}
+        <Box display="flex" justifyContent="flex-end" mt={3}>
+          <AddProgramLink
+            startIcon={<AddIcon sx={{ color: '#4065C5' }} />}
             onClick={handleAddProgram}
+            disableRipple
           >
             Create Another Program
-          </AddProgramButton>
+          </AddProgramLink>
         </Box>
       </ContentContainer>
     </Box>

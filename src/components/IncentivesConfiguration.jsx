@@ -16,6 +16,7 @@ import {
   InputLabel,
   InputAdornment,
   Switch,
+  Divider,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -270,6 +271,11 @@ const IncentiveTypeSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
+const SectionDivider = styled(Divider)(({ theme }) => ({
+  margin: '16px 0',
+  backgroundColor: '#E3E8EF',
+}));
+
 const IncentivesConfiguration = ({ 
   programNumber, 
   onDelete,
@@ -467,52 +473,55 @@ const IncentivesConfiguration = ({
               </VerticalInputsContainer>
             ) : (
               <>
-                {rows.map((row) => (
-                  <VerticalInputsContainer key={row.id}>
-                    <StyledTextField
-                      label="Collect by date"
-                      size="small"
-                      type="number"
-                      InputProps={{
-                        inputProps: { 
-                          min: 1,
-                          max: 31,
-                        },
-                      }}
-                      helperText="Enter day of month (1-31)"
-                    />
-                    <StyledTextField
-                      label="Target Amount"
-                      size="small"
-                      type="number"
-                      InputProps={{
-                        inputProps: { min: 0 },
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CurrencyRupeeIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <StyledTextField
-                      label="Incentive Amount"
-                      size="small"
-                      type="number"
-                      InputProps={{
-                        inputProps: { min: 0 },
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <CurrencyRupeeIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    {rows.length > 1 && (
-                      <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
-                        <DeleteOutlineIcon />
-                      </DeleteRowButton>
-                    )}
-                  </VerticalInputsContainer>
+                {rows.map((row, index) => (
+                  <React.Fragment key={row.id}>
+                    {index > 0 && <SectionDivider />}
+                    <VerticalInputsContainer>
+                      <StyledTextField
+                        label="Collect by date"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { 
+                            min: 1,
+                            max: 31,
+                          },
+                        }}
+                        helperText="Enter day of month (1-31)"
+                      />
+                      <StyledTextField
+                        label="Target Amount"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { min: 0 },
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CurrencyRupeeIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      <StyledTextField
+                        label="Incentive Amount"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { min: 0 },
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CurrencyRupeeIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      {rows.length > 1 && (
+                        <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                          <DeleteOutlineIcon />
+                        </DeleteRowButton>
+                      )}
+                    </VerticalInputsContainer>
+                  </React.Fragment>
                 ))}
                 <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
                   Add more
@@ -525,52 +534,55 @@ const IncentivesConfiguration = ({
       case 'recovery_rate':
         return (
           <>
-            {rows.map((row) => (
-              <VerticalInputsContainer key={row.id}>
-                <StyledTextField
-                  label="Collect on date"
-                  size="small"
-                  type="number"
-                  InputProps={{
-                    inputProps: { 
-                      min: 1,
-                      max: 31,
-                    },
-                  }}
-                  helperText="Enter day of month (1-31)"
-                />
-                <StyledTextField
-                  label="Target %"
-                  size="small"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0, max: 100 },
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <PercentIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                <StyledTextField
-                  label="Incentive Amount"
-                  size="small"
-                  type="number"
-                  InputProps={{
-                    inputProps: { min: 0 },
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CurrencyRupeeIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                {rows.length > 1 && (
-                  <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
-                    <DeleteOutlineIcon />
-                  </DeleteRowButton>
-                )}
-              </VerticalInputsContainer>
+            {rows.map((row, index) => (
+              <React.Fragment key={row.id}>
+                {index > 0 && <SectionDivider />}
+                <VerticalInputsContainer>
+                  <StyledTextField
+                    label="Collect on date"
+                    size="small"
+                    type="number"
+                    InputProps={{
+                      inputProps: { 
+                        min: 1,
+                        max: 31,
+                      },
+                    }}
+                    helperText="Enter day of month (1-31)"
+                  />
+                  <StyledTextField
+                    label="Target %"
+                    size="small"
+                    type="number"
+                    InputProps={{
+                      inputProps: { min: 0, max: 100 },
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <PercentIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <StyledTextField
+                    label="Incentive Amount"
+                    size="small"
+                    type="number"
+                    InputProps={{
+                      inputProps: { min: 0 },
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CurrencyRupeeIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {rows.length > 1 && (
+                    <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                      <DeleteOutlineIcon />
+                    </DeleteRowButton>
+                  )}
+                </VerticalInputsContainer>
+              </React.Fragment>
             ))}
             <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
               Add more
@@ -607,31 +619,16 @@ const IncentivesConfiguration = ({
                 : "Set an incentive for collecting the target amount on a chosen, single date."}
             </InfoAlert>
 
-            {rows.map((row) => (
-              <VerticalInputsContainer key={row.id}>
-                {incentiveType === 'single' ? (
-                  <StyledDatePicker
-                    label="Collect on date"
-                    slotProps={{
-                      textField: {
-                        size: 'small',
-                      },
-                    }}
-                  />
-                ) : (
-                  <StyledTextField
-                    label="Collect by date"
-                    size="small"
-                    type="number"
-                    InputProps={{
-                      inputProps: { 
-                        min: 1,
-                        max: 31,
-                      },
-                    }}
-                    helperText="Enter day of month (1-31)"
-                  />
-                )}
+            {incentiveType === 'single' ? (
+              <VerticalInputsContainer>
+                <StyledDatePicker
+                  label="Collect on date"
+                  slotProps={{
+                    textField: {
+                      size: 'small',
+                    },
+                  }}
+                />
                 <StyledTextField
                   label="Target Accounts"
                   size="small"
@@ -653,16 +650,59 @@ const IncentivesConfiguration = ({
                     ),
                   }}
                 />
-                {rows.length > 1 && (
-                  <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
-                    <DeleteOutlineIcon />
-                  </DeleteRowButton>
-                )}
               </VerticalInputsContainer>
-            ))}
-            <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
-              Add more
-            </AddButton>
+            ) : (
+              <>
+                {rows.map((row, index) => (
+                  <React.Fragment key={row.id}>
+                    {index > 0 && <SectionDivider />}
+                    <VerticalInputsContainer>
+                      <StyledTextField
+                        label="Collect by date"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { 
+                            min: 1,
+                            max: 31,
+                          },
+                        }}
+                        helperText="Enter day of month (1-31)"
+                      />
+                      <StyledTextField
+                        label="Target Accounts"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { min: 0 },
+                        }}
+                      />
+                      <StyledTextField
+                        label="Incentive Amount"
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          inputProps: { min: 0 },
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CurrencyRupeeIcon />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                      {rows.length > 1 && (
+                        <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                          <DeleteOutlineIcon />
+                        </DeleteRowButton>
+                      )}
+                    </VerticalInputsContainer>
+                  </React.Fragment>
+                ))}
+                <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
+                  Add more
+                </AddButton>
+              </>
+            )}
           </>
         );
 
@@ -741,14 +781,14 @@ const IncentivesConfiguration = ({
     if (!criteria && programType !== 'conveyance') {
       return (
         <IncentiveAmountBox>
-          <Typography variant="h6">Incentive Amount</Typography>
+          <Typography variant="subtitle1">Incentive Amount</Typography>
         </IncentiveAmountBox>
       );
     }
 
     return (
       <IncentiveAmountBox>
-        <Typography variant="h6" mb={3}>Incentive Amount</Typography>
+        <Typography variant="subtitle1" mb={3}>Incentive Amount</Typography>
         {programType === 'variable' && (
           <>
             {criteria === 'recovery_rate' && (
