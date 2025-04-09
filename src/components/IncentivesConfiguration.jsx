@@ -142,19 +142,15 @@ const InfoAlert = styled(Alert)(({ theme }) => ({
   backgroundColor: '#4065C5',
   color: '#FFFFFF',
   borderRadius: '6px',
-  marginBottom: '16px',
+  marginBottom: theme.spacing(2),
   '& .MuiAlert-icon': {
     color: '#FFFFFF',
-  },
-  '& .MuiSvgIcon-root': {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
   },
 }));
 
 const GridInputsContainer = styled(Box)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: '1fr auto 1fr auto 1fr',
+  gridTemplateColumns: '1fr auto 1fr 1fr',
   gap: '16px',
   marginBottom: '16px',
   alignItems: 'center',
@@ -254,31 +250,36 @@ const HeaderBox = styled(Box)(({ theme }) => ({
   '& .controls-section': {
     display: 'flex',
     alignItems: 'center',
-    gap: '24px',
+    gap: '16px',
   },
   '& .toggle-section': {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
   },
-  '& .collapse-button': {
+}));
+
+const IncentiveTypeSelect = styled(Select)(({ theme }) => ({
+  '&.MuiSelect-select': { 
+    paddingRight: '24px !important',
+    paddingLeft: '4px',
     color: '#6C7787',
+  },
+  '&:before, &:after': { 
+    display: 'none',
   },
 }));
 
 const IncentivesConfiguration = ({ 
   programNumber, 
-  onAddMore, 
-  isLast, 
   onDelete,
   onProgramTypeChange,
-  usedProgramTypes = [],
 }) => {
   const [expanded, setExpanded] = useState(true);
   const [programType, setProgramType] = useState('');
   const [calculationType, setCalculationType] = useState('plain');
   const [criteria, setCriteria] = useState('');
-  const [rows, setRows] = useState([{ id: 1, incentiveUnit: 'rupee' }]);
+  const [rows, setRows] = useState([{ id: 1, incentiveUnit: 'percent' }]);
   const [incentiveType, setIncentiveType] = useState('single');
   const [isActive, setIsActive] = useState(false);
 
@@ -292,7 +293,7 @@ const IncentivesConfiguration = ({
   };
 
   const handleAddRow = () => {
-    setRows([...rows, { id: rows.length + 1, incentiveUnit: 'rupee' }]);
+    setRows([...rows, { id: rows.length + 1, incentiveUnit: 'percent' }]);
   };
 
   const handleDeleteRow = (id) => {
@@ -318,7 +319,6 @@ const IncentivesConfiguration = ({
           value="variable"
           control={<Radio sx={{ color: '#4065C5' }} />}
           label="Variable"
-          disabled={programNumber !== 1 && usedProgramTypes.includes('variable')}
         />
         <FormControlLabel
           value="milestone"
@@ -339,12 +339,17 @@ const IncentivesConfiguration = ({
             <InputLabel>Choose</InputLabel>
             <Select
               value={criteria}
-              onChange={(e) => setCriteria(e.target.value)}
+              onChange={(e) => {
+                setCriteria(e.target.value);
+                if (e.target.value === 'recovery_rate') {
+                  setCalculationType('grid');
+                }
+              }}
               label="Choose"
             >
               <MenuItem value="amount_collected">Amount Collected</MenuItem>
               <MenuItem value="recovery_rate">Recovery Rate</MenuItem>
-              <MenuItem value="accounts_closed">Accounts Closed</MenuItem>
+              <MenuItem value="accounts_closed">Accounts Collected</MenuItem>
             </Select>
           </StyledFormControl>
         </Box>
@@ -370,13 +375,31 @@ const IncentivesConfiguration = ({
           </CalcTypeRadioGroup>
         </Box>
       )}
+
+      {programType === 'variable' && criteria && (
+        <Box mt={3}>
+          <Typography variant="subtitle1" mb={2}>Variable Limit</Typography>
+          <StyledTextField
+            fullWidth
+            size="small"
+            type="number"
+            InputProps={{
+              inputProps: { min: 0 },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CurrencyRupeeIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+      )}
     </LeftColumnBox>
   );
 
   const renderMilestoneContent = () => {
     switch (criteria) {
       case 'amount_collected':
-      case 'accounts_closed':
         return (
           <>
             <StyledRadioGroup
@@ -402,13 +425,13 @@ const IncentivesConfiguration = ({
             >
               {incentiveType === 'single'
                 ? "Set an incentive for collecting the target amount on a chosen, single date."
-                : "Set an incentive for collecting the target amount anytime up to a chosen deadline."}
+                : "Set an incentive for collecting the target amount on a chosen, single date."}
             </InfoAlert>
 
-            {rows.map((row) => (
-              <VerticalInputsContainer key={row.id}>
+            {incentiveType === 'single' ? (
+              <VerticalInputsContainer>
                 <StyledDatePicker
-                  label={incentiveType === 'single' ? "Collect on date" : "Collect by date"}
+                  label="Collect on date"
                   slotProps={{
                     textField: {
                       size: 'small',
@@ -416,18 +439,117 @@ const IncentivesConfiguration = ({
                   }}
                 />
                 <StyledTextField
-                  label={criteria === 'amount_collected' ? "Target Amount" : "Target Accounts"}
+                  label="Target Amount"
                   size="small"
                   type="number"
                   InputProps={{
                     inputProps: { min: 0 },
-                    ...(criteria === 'amount_collected' && {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CurrencyRupeeIcon />
-                        </InputAdornment>
-                      ),
-                    }),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CurrencyRupeeIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <StyledTextField
+                  label="Incentive Amount"
+                  size="small"
+                  type="number"
+                  InputProps={{
+                    inputProps: { min: 0 },
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CurrencyRupeeIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </VerticalInputsContainer>
+            ) : (
+              <>
+                {rows.map((row) => (
+                  <VerticalInputsContainer key={row.id}>
+                    <StyledTextField
+                      label="Collect by date"
+                      size="small"
+                      type="number"
+                      InputProps={{
+                        inputProps: { 
+                          min: 1,
+                          max: 31,
+                        },
+                      }}
+                      helperText="Enter day of month (1-31)"
+                    />
+                    <StyledTextField
+                      label="Target Amount"
+                      size="small"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 0 },
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CurrencyRupeeIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <StyledTextField
+                      label="Incentive Amount"
+                      size="small"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 0 },
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CurrencyRupeeIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {rows.length > 1 && (
+                      <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                        <DeleteOutlineIcon />
+                      </DeleteRowButton>
+                    )}
+                  </VerticalInputsContainer>
+                ))}
+                <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
+                  Add more
+                </AddButton>
+              </>
+            )}
+          </>
+        );
+
+      case 'recovery_rate':
+        return (
+          <>
+            {rows.map((row) => (
+              <VerticalInputsContainer key={row.id}>
+                <StyledTextField
+                  label="Collect on date"
+                  size="small"
+                  type="number"
+                  InputProps={{
+                    inputProps: { 
+                      min: 1,
+                      max: 31,
+                    },
+                  }}
+                  helperText="Enter day of month (1-31)"
+                />
+                <StyledTextField
+                  label="Target %"
+                  size="small"
+                  type="number"
+                  InputProps={{
+                    inputProps: { min: 0, max: 100 },
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <PercentIcon />
+                      </InputAdornment>
+                    ),
                   }}
                 />
                 <StyledTextField
@@ -456,49 +578,163 @@ const IncentivesConfiguration = ({
           </>
         );
 
-      case 'recovery_rate':
+      case 'accounts_closed':
         return (
-          <VerticalInputsContainer>
-            <StyledDatePicker
-              label="Collect by date"
-              slotProps={{
-                textField: {
-                  size: 'small',
-                },
-              }}
-            />
-            <StyledTextField
-              label="Collect % Amount"
-              size="small"
-              type="number"
-              InputProps={{
-                inputProps: { min: 0, max: 100 },
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <PercentIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <StyledTextField
-              label="Incentive Amount"
-              size="small"
-              type="number"
-              InputProps={{
-                inputProps: { min: 0 },
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <CurrencyRupeeIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </VerticalInputsContainer>
+          <>
+            <StyledRadioGroup
+              value={incentiveType}
+              onChange={(e) => setIncentiveType(e.target.value)}
+              sx={{ mb: 2 }}
+            >
+              <FormControlLabel
+                value="single"
+                control={<Radio sx={{ color: '#4065C5' }} />}
+                label="Single Date Incentive"
+              />
+              <FormControlLabel
+                value="target"
+                control={<Radio sx={{ color: '#4065C5' }} />}
+                label="Target Date Incentive"
+              />
+            </StyledRadioGroup>
+
+            <InfoAlert
+              icon={<HelpOutlineIcon />}
+              severity="info"
+            >
+              {incentiveType === 'single'
+                ? "Set an incentive for collecting the target amount on a chosen, single date."
+                : "Set an incentive for collecting the target amount on a chosen, single date."}
+            </InfoAlert>
+
+            {rows.map((row) => (
+              <VerticalInputsContainer key={row.id}>
+                {incentiveType === 'single' ? (
+                  <StyledDatePicker
+                    label="Collect on date"
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                      },
+                    }}
+                  />
+                ) : (
+                  <StyledTextField
+                    label="Collect by date"
+                    size="small"
+                    type="number"
+                    InputProps={{
+                      inputProps: { 
+                        min: 1,
+                        max: 31,
+                      },
+                    }}
+                    helperText="Enter day of month (1-31)"
+                  />
+                )}
+                <StyledTextField
+                  label="Target Accounts"
+                  size="small"
+                  type="number"
+                  InputProps={{
+                    inputProps: { min: 0 },
+                  }}
+                />
+                <StyledTextField
+                  label="Incentive Amount"
+                  size="small"
+                  type="number"
+                  InputProps={{
+                    inputProps: { min: 0 },
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CurrencyRupeeIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                {rows.length > 1 && (
+                  <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                    <DeleteOutlineIcon />
+                  </DeleteRowButton>
+                )}
+              </VerticalInputsContainer>
+            ))}
+            <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
+              Add more
+            </AddButton>
+          </>
         );
 
       default:
         return null;
     }
+  };
+
+  const renderIncentiveInput = (row, isPlain = false, criteria) => {
+    if (isPlain) {
+      if (criteria === 'amount_collected') {
+        return (
+          <StyledTextField
+            fullWidth
+            label="Incentive % of collected amount"
+            size="small"
+            type="number"
+            InputProps={{
+              inputProps: { min: 0, max: 100 },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <PercentIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        );
+      } else if (criteria === 'accounts_closed') {
+        return (
+          <StyledTextField
+            fullWidth
+            label="Amount per accounts closed"
+            size="small"
+            type="number"
+            InputProps={{
+              inputProps: { min: 0 },
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CurrencyRupeeIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        );
+      }
+    }
+
+    return (
+      <StyledTextField
+        label="Incentive"
+        size="small"
+        type="number"
+        InputProps={{
+          inputProps: { 
+            min: 0,
+            max: row.incentiveUnit === 'percent' ? 100 : undefined 
+          },
+          endAdornment: (
+            <InputAdornment position="end">
+              <IncentiveTypeSelect
+                value={row.incentiveUnit}
+                onChange={(e) => handleIncentiveUnitChange(row.id, e.target.value)}
+                variant="standard"
+              >
+                <MenuItem value="percent">%</MenuItem>
+                <MenuItem value="amount">₹</MenuItem>
+              </IncentiveTypeSelect>
+            </InputAdornment>
+          ),
+        }}
+      />
+    );
   };
 
   const renderIncentiveAmount = () => {
@@ -515,23 +751,56 @@ const IncentivesConfiguration = ({
         <Typography variant="h6" mb={3}>Incentive Amount</Typography>
         {programType === 'variable' && (
           <>
+            {criteria === 'recovery_rate' && (
+              <>
+                {rows.map((row) => (
+                  <GridInputsContainer key={row.id}>
+                    <StyledTextField
+                      label="Recovery Rate %"
+                      size="small"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 0, max: 100 },
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <PercentIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    <Typography>To</Typography>
+                    <StyledTextField
+                      label="Recovery Rate %"
+                      size="small"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 0, max: 100 },
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <PercentIcon />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {renderIncentiveInput(row)}
+                    {rows.length > 1 && (
+                      <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                        <DeleteOutlineIcon />
+                      </DeleteRowButton>
+                    )}
+                  </GridInputsContainer>
+                ))}
+                <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
+                  Add more
+                </AddButton>
+              </>
+            )}
             {criteria === 'amount_collected' && (
               <>
                 {calculationType === 'plain' ? (
-                  <StyledTextField
-                    fullWidth
-                    label="Incentive % of collected amount"
-                    size="small"
-                    type="number"
-                    InputProps={{
-                      inputProps: { min: 0, max: 100 },
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <PercentIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+                  <>
+                    {renderIncentiveInput(null, true, criteria)}
+                  </>
                 ) : (
                   <>
                     {rows.map((row) => (
@@ -549,43 +818,7 @@ const IncentivesConfiguration = ({
                           type="number"
                           InputProps={{ inputProps: { min: 0 } }}
                         />
-                        <Typography>To</Typography>
-                        <StyledTextField
-                          label="Incentive"
-                          size="small"
-                          type="number"
-                          InputProps={{
-                            inputProps: { 
-                              min: 0,
-                              max: row.incentiveUnit === 'percent' ? 100 : undefined 
-                            },
-                            startAdornment: row.incentiveUnit === 'rupee' ? (
-                              <InputAdornment position="start">
-                                <CurrencyRupeeIcon />
-                              </InputAdornment>
-                            ) : null,
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <Select
-                                  value={row.incentiveUnit}
-                                  onChange={(e) => handleIncentiveUnitChange(row.id, e.target.value)}
-                                  variant="standard"
-                                  sx={{
-                                    '&:before': { display: 'none' },
-                                    '&:after': { display: 'none' },
-                                    '& .MuiSelect-select': { 
-                                      py: 0,
-                                      color: '#6C7787',
-                                    },
-                                  }}
-                                >
-                                  <MenuItem value="rupee">₹</MenuItem>
-                                  <MenuItem value="percent">%</MenuItem>
-                                </Select>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
+                        {renderIncentiveInput(row)}
                         {rows.length > 1 && (
                           <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
                             <DeleteOutlineIcon />
@@ -600,65 +833,42 @@ const IncentivesConfiguration = ({
                 )}
               </>
             )}
-            {criteria === 'recovery_rate' && (
+            {criteria === 'accounts_closed' && (
               <>
-                <StyledRadioGroup
-                  value={incentiveType}
-                  onChange={(e) => setIncentiveType(e.target.value)}
-                  sx={{ mb: 2 }}
-                >
-                  <FormControlLabel
-                    value="single"
-                    control={<Radio sx={{ color: '#4065C5' }} />}
-                    label="Single Date Incentive"
-                  />
-                  <FormControlLabel
-                    value="target"
-                    control={<Radio sx={{ color: '#4065C5' }} />}
-                    label="Target Date Incentive"
-                  />
-                </StyledRadioGroup>
-
-                <InfoAlert
-                  icon={<HelpOutlineIcon />}
-                  severity="info"
-                >
-                  {incentiveType === 'single'
-                    ? "Set an incentive for collecting the target amount on a chosen, single date."
-                    : "Set an incentive for collecting the target amount anytime up to a chosen deadline."}
-                </InfoAlert>
-
-                <VerticalInputsContainer>
-                  <StyledDatePicker
-                    label={incentiveType === 'single' ? "Collect on date" : "Collect by date"}
-                  />
-                  <StyledTextField
-                    label="Collect % Amount"
-                    size="small"
-                    type="number"
-                    InputProps={{
-                      inputProps: { min: 0, max: 100 },
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <PercentIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <StyledTextField
-                    label="Incentive Amount"
-                    size="small"
-                    type="number"
-                    InputProps={{
-                      inputProps: { min: 0 },
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CurrencyRupeeIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </VerticalInputsContainer>
+                {calculationType === 'plain' ? (
+                  <>
+                    {renderIncentiveInput(null, true, criteria)}
+                  </>
+                ) : (
+                  <>
+                    {rows.map((row) => (
+                      <GridInputsContainer key={row.id}>
+                        <StyledTextField
+                          label="Amount Collected"
+                          size="small"
+                          type="number"
+                          InputProps={{ inputProps: { min: 0 } }}
+                        />
+                        <Typography>To</Typography>
+                        <StyledTextField
+                          label="Amount Collected"
+                          size="small"
+                          type="number"
+                          InputProps={{ inputProps: { min: 0 } }}
+                        />
+                        {renderIncentiveInput(row)}
+                        {rows.length > 1 && (
+                          <DeleteRowButton onClick={() => handleDeleteRow(row.id)}>
+                            <DeleteOutlineIcon />
+                          </DeleteRowButton>
+                        )}
+                      </GridInputsContainer>
+                    ))}
+                    <AddButton startIcon={<AddIcon />} onClick={handleAddRow}>
+                      Add more
+                    </AddButton>
+                  </>
+                )}
               </>
             )}
           </>
@@ -686,11 +896,6 @@ const IncentivesConfiguration = ({
 
   return (
     <StyledBox>
-      {programNumber !== 1 && (
-        <DeleteButton className="delete-program" onClick={onDelete}>
-          <DeleteOutlineIcon />
-        </DeleteButton>
-      )}
       <HeaderBox>
         <Box className="title-section">
           <Typography variant="h6">Program {programNumber}</Typography>
@@ -717,6 +922,17 @@ const IncentivesConfiguration = ({
           >
             {expanded ? <RemoveIcon /> : <AddIcon />}
           </IconButton>
+          {programNumber !== 1 && (
+            <IconButton 
+              onClick={onDelete}
+              sx={{ 
+                color: '#6C7787',
+                padding: '4px',
+              }}
+            >
+              <DeleteOutlineIcon sx={{ width: '20px', height: '20px' }} />
+            </IconButton>
+          )}
         </Box>
       </HeaderBox>
 
@@ -729,14 +945,6 @@ const IncentivesConfiguration = ({
             {renderIncentiveAmount()}
           </Grid>
         </Grid>
-      )}
-
-      {isLast && (
-        <Box display="flex" justifyContent="flex-end" mt={3}>
-          <AddButton onClick={onAddMore}>
-            Create Another
-          </AddButton>
-        </Box>
       )}
     </StyledBox>
   );

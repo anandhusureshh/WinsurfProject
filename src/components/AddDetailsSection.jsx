@@ -86,7 +86,7 @@ const SelectHeader = styled(Box)(({ theme }) => ({
 
 const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [] }) => {
   const [allocator, setAllocator] = useState('');
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [bucket, setBucket] = useState('');
   const [selectedAgents, setSelectedAgents] = useState([]);
 
@@ -118,32 +118,17 @@ const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [
     'Agent 5',
   ];
 
-  const isAgentsEnabled = allocator !== '' && selectedProducts.length > 0 && bucket !== '';
+  const isAgentsEnabled = allocator !== '' && selectedProduct !== '' && bucket !== '';
 
   const handleSelectAllAgents = (event) => {
     event.stopPropagation();
     setSelectedAgents(selectedAgents.length === agents.length ? [] : [...agents]);
   };
 
-  const handleSelectAllProducts = (event) => {
-    event.stopPropagation();
-    setSelectedProducts(selectedProducts.length === products.length ? [] : [...products]);
-  };
-
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: 300,
-      },
-    },
-    anchorOrigin: {
-      vertical: 'bottom',
-      horizontal: 'left',
-    },
-    transformOrigin: {
-      vertical: 'top',
-      horizontal: 'left',
-    },
+  const handleProductChange = (event) => {
+    setSelectedProduct(event.target.value);
+    setBucket('');
+    setSelectedAgents([]);
   };
 
   return (
@@ -163,12 +148,11 @@ const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [
                 value={allocator}
                 onChange={(e) => {
                   setAllocator(e.target.value);
-                  setSelectedProducts([]);
+                  setSelectedProduct('');
                   setBucket('');
                   setSelectedAgents([]);
                 }}
                 label="Allocator"
-                MenuProps={MenuProps}
               >
                 {allocators.map((item) => (
                   <MenuItem key={item} value={item}>
@@ -183,44 +167,13 @@ const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [
             <StyledFormControl fullWidth>
               <InputLabel>Product</InputLabel>
               <Select
-                multiple
-                value={selectedProducts}
-                onChange={(e) => {
-                  setSelectedProducts(e.target.value);
-                  setBucket('');
-                  setSelectedAgents([]);
-                }}
+                value={selectedProduct}
+                onChange={handleProductChange}
                 label="Product"
-                renderValue={(selected) => `${selected.length} products selected`}
-                MenuProps={MenuProps}
               >
-                <SelectHeader display="flex" justifyContent="space-between" alignItems="center">
-                  <Typography variant="body2">{selectedProducts.length} selected</Typography>
-                  <Button
-                    sx={{ 
-                      color: '#4065C5', 
-                      textTransform: 'none',
-                      minWidth: 'auto',
-                      padding: '4px 8px',
-                    }}
-                    onClick={handleSelectAllProducts}
-                  >
-                    {selectedProducts.length === products.length ? 'Deselect all' : 'Select all'}
-                  </Button>
-                </SelectHeader>
-                <Divider />
                 {products.map((product) => (
                   <MenuItem key={product} value={product}>
-                    <Checkbox
-                      checked={selectedProducts.indexOf(product) > -1}
-                      sx={{
-                        color: '#4065C5',
-                        '&.Mui-checked': {
-                          color: '#4065C5',
-                        },
-                      }}
-                    />
-                    <ListItemText primary={product} />
+                    {product}
                   </MenuItem>
                 ))}
               </Select>
@@ -237,7 +190,7 @@ const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [
                   setSelectedAgents([]);
                 }}
                 label="Bucket"
-                MenuProps={MenuProps}
+                disabled={!selectedProduct}
               >
                 {buckets.map((item) => (
                   <MenuItem key={item} value={item}>
@@ -257,8 +210,6 @@ const AddDetailsSection = ({ id, onDelete, isLast, onAddMore, usedAllocators = [
                 onChange={(e) => setSelectedAgents(e.target.value)}
                 disabled={!isAgentsEnabled}
                 renderValue={(selected) => `${selected.length} agents selected`}
-                label="Agents"
-                MenuProps={MenuProps}
               >
                 <SelectHeader display="flex" justifyContent="space-between" alignItems="center">
                   <Typography variant="body2">{selectedAgents.length} selected</Typography>

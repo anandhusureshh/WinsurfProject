@@ -6,9 +6,11 @@
   "homepage": "https://anandhusureshh.github.io/WinsurfProject",
   "scripts": {
     "dev": "vite",
+    "start": "vite --host",
     "build": "vite build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "tunnel": "lt --port 3000",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -18,7 +20,7 @@
     "@mui/icons-material": "^5.15.13",
     "@mui/material": "^5.15.13",
     "@mui/x-date-pickers": "^6.19.7",
-    "date-fns": "^3.5.0",
+    "date-fns": "^2.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -31,6 +33,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "gh-pages": "^6.1.1",
+    "localtunnel": "^2.0.2",
+    "serve": "^14.2.4",
     "vite": "^5.1.6"
   }
 }

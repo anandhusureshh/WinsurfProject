@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import {
   Box,
-  Button,
   Typography,
+  Button,
   IconButton,
   Divider,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 import AddDetailsSection from './AddDetailsSection';
 import IncentivesConfiguration from './IncentivesConfiguration';
 
@@ -47,7 +48,7 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
 }));
 
-const ButtonGroup = styled(Box)(({ theme }) => ({
+const StyledButtonGroup = styled(Box)(({ theme }) => ({
   display: 'flex',
   gap: '8px',
 }));
@@ -63,10 +64,20 @@ const ProgramsContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
+const AddProgramButton = styled(Button)(({ theme }) => ({
+  height: '40px',
+  color: '#4065C5',
+  textTransform: 'none',
+  borderColor: '#4065C5',
+  '&:hover': {
+    borderColor: '#4065C5',
+    backgroundColor: 'rgba(64, 101, 197, 0.04)',
+  },
+}));
+
 const IncentivesConfigurator = () => {
   const [detailsBlocks, setDetailsBlocks] = useState([{ id: 1, allocator: '' }]);
   const [programs, setPrograms] = useState([{ id: 1, programType: '' }]);
-  const [usedProgramTypes, setUsedProgramTypes] = useState([]);
 
   const handleAddDetailsBlock = () => {
     setDetailsBlocks([...detailsBlocks, { id: detailsBlocks.length + 1, allocator: '' }]);
@@ -84,9 +95,14 @@ const IncentivesConfigurator = () => {
     setPrograms(programs.filter(program => program.id !== id));
   };
 
+  const handleProgramTypeChange = (programId, newType) => {
+    setPrograms(programs.map(program => 
+      program.id === programId ? { ...program, programType: newType } : program
+    ));
+  };
+
   const handleSavePrograms = () => {
-    // Implement save logic
-    console.log('Saving programs...');
+    console.log('Saving programs:', programs);
   };
 
   const getUsedAllocators = (currentId) => {
@@ -94,21 +110,6 @@ const IncentivesConfigurator = () => {
       .filter(block => block.id !== currentId)
       .map(block => block.allocator)
       .filter(Boolean);
-  };
-
-  const handleUpdateAllocator = (id, allocator) => {
-    setDetailsBlocks(detailsBlocks.map(block => 
-      block.id === id ? { ...block, allocator } : block
-    ));
-  };
-
-  const handleProgramTypeChange = (programNumber, newType) => {
-    setPrograms(programs.map(program => 
-      program.id === programNumber ? { ...program, programType: newType } : program
-    ));
-    if (!usedProgramTypes.includes(newType)) {
-      setUsedProgramTypes([...usedProgramTypes, newType]);
-    }
   };
 
   return (
@@ -125,7 +126,7 @@ const IncentivesConfigurator = () => {
             Incentives Calculator
           </Typography>
         </Box>
-        <ButtonGroup>
+        <StyledButtonGroup>
           <Button
             variant="outlined"
             sx={{
@@ -155,7 +156,7 @@ const IncentivesConfigurator = () => {
           >
             Save Programs
           </Button>
-        </ButtonGroup>
+        </StyledButtonGroup>
         <HeaderDivider />
       </Header>
       <ContentContainer>
@@ -176,13 +177,20 @@ const IncentivesConfigurator = () => {
               key={program.id}
               programNumber={program.id}
               onDelete={() => handleDeleteProgram(program.id)}
-              onAddMore={handleAddProgram}
-              isLast={program.id === programs.length}
               onProgramTypeChange={handleProgramTypeChange}
-              usedProgramTypes={usedProgramTypes}
+              isLast={false}
             />
           ))}
         </ProgramsContainer>
+        <Box display="flex" justifyContent="center" mt={3}>
+          <AddProgramButton
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={handleAddProgram}
+          >
+            Create Another Program
+          </AddProgramButton>
+        </Box>
       </ContentContainer>
     </Box>
   );
